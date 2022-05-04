@@ -1,15 +1,23 @@
 import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import {
-  OrbitControls,
-  Environment,
-  CubeCamera,
-  PerspectiveCamera,
-} from "@react-three/drei";
 import Ground from "./components/Ground";
 import Car from "./components/Car";
 import Rings from "./components/Rings";
-
+import Boxes from "./components/Boxes";
+import FloatingGrid from "./components/FloatingGrid";
+import {
+  EffectComposer,
+  DepthOfField,
+  Bloom,
+  ChromaticAberration,
+} from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
+import {
+  CubeCamera,
+  Environment,
+  OrbitControls,
+  PerspectiveCamera,
+} from "@react-three/drei";
 function CarShow() {
   return (
     <>
@@ -25,7 +33,9 @@ function CarShow() {
           </>
         )}
       </CubeCamera>{" "}
+      <FloatingGrid/>
       <Rings />
+      <Boxes />
       <Ground />
       <spotLight
         color={[1, 0.25, 0.7]}
@@ -45,6 +55,27 @@ function CarShow() {
         shadow-bias={-0.0001}
         position={[-5, 5, 0]}
       />
+      <EffectComposer>
+        <DepthOfField
+          focusDistance={0.0035}
+          focalLength={0.01}
+          bokehScale={3}
+          height={480}
+        />
+        <Bloom
+          blendFunction={BlendFunction.ADD}
+          intensity={2} // The bloom intensity.
+          width={200} // render width
+          height={200} // render height
+          kernelSize={5} // blur kernel size
+          luminanceThreshold={0.15} // luminance threshold. Raise this value to mask out darker elements in the scene.
+          luminanceSmoothing={0.025} // smoothness of the luminance threshold. Range is [0, 1]
+        />
+        <ChromaticAberration
+          blendFunction={BlendFunction.NORMAL} // blend mode
+          offset={[0.005, 0.005]} // color offset
+        />
+      </EffectComposer>
     </>
   );
 }
